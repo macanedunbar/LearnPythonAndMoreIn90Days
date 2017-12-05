@@ -3,13 +3,18 @@ import sys
 import time
 from PythonRPG.Scripts.UltraColor import *
 from PythonRPG.Scripts.textures import *
+from PythonRPG.Scripts.globals import *
+from PythonRPG.Scripts.map_engine import *
 
 pygame.init()
 
 cSec = 0
 cFrame = 0
 FPS = 0
-tile_size = 32
+
+terrain = Map_Engine.load_map("maps\\world.map")
+
+
 
 fps_font = pygame.font.Font("C:\\Windows\\Fonts\\Verdana.ttf", 20)
 
@@ -33,7 +38,7 @@ def create_window():
 
 
 def count_fps():
-    global cSec, cFrame, FPS
+    global cSec, cFrame, FPS, deltatime
 
     if cSec == time.strftime("%S"):
         cFrame += 1
@@ -41,7 +46,8 @@ def count_fps():
         FPS = cFrame
         cFrame = 0
         cSec = time.strftime("%S")
-        return FPS
+        if FPS > 0:
+            deltatime = 1 / FPS
 
 
 create_window()
@@ -52,20 +58,40 @@ while isRunning:
         if event.type == pygame.QUIT:
             isRunning = False
 
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_w:
+                Globals.camera_move = 1
+            elif event.key == pygame.K_s:
+                Globals.camera_move = 2
+            elif event.key == pygame.K_a:
+                Globals.camera_move = 3
+            elif event.key == pygame.K_d:
+                Globals.camera_move = 4
+        elif event.type == pygame.KEYUP:
+                Globals.camera_move = 0
+
     # LOGIC
-    count_fps()
+    if Globals.camera_move == 1:
+        Globals.camera_y += 150 * deltatime
+    elif Globals.camera_move == 2:
+        Globals.camera_y -= 150 * deltatime
+    elif Globals.camera_move == 3:
+        Globals.camera_x += 150 * deltatime
+    elif Globals.camera_move == 4:
+        Globals.camera_x -= 150 * deltatime
 
     # RENDER GRAPHICS
     window.blit(Sky, (0, 0))
 
-    # - Render Simple Terrain Grid
-    for x in range(0, 640, tile_size):
-        for y in range(0, 480, tile_size):
-            window.blit(Tiles.Grass, (x, y))
+    window.blit(terrain, (Globals.camera_x, Globals.camera_y))
+
 
     show_fps()
 
     pygame.display.update()
+
+    count_fps()
+
 
 pygame.quit()
 sys.exit()
