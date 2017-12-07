@@ -8,7 +8,7 @@ class Tiles:
 
     Blocked = []
 
-    Blocked_Types = ["3"]
+    Blocked_Types = ["r", "3"]
 
     def Blocked_At(pos):
         if list(pos) in Tiles.Blocked:
